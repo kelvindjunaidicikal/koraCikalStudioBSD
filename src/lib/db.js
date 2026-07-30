@@ -321,11 +321,21 @@ export async function getStats() {
       popularRoom = room.split(' - ')[0];
     }
   });
+
+  const activeThisWeek = bookings.filter(b => {
+    const bDate = new Date(b.date);
+    const today = new Date('2026-07-29'); // Local test time reference
+    const diffTime = Math.abs(today - bDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 7;
+  }).length;
   
   return {
     totalBookings,
     totalConfirmed,
     totalPending,
-    popularRoom
+    popularRoom,
+    roomCount: studios.length,
+    activeThisWeek
   };
 }

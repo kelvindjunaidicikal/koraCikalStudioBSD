@@ -321,18 +321,33 @@ export default function TeacherAdminDashboard() {
           </p>
         </div>
 
-        <button 
-          onClick={handleResetData}
-          className="btn btn-secondary"
-          style={{
-            borderColor: 'rgba(239, 68, 68, 0.25)',
-            color: 'var(--color-error)',
-            padding: '0.5rem 1rem',
-            fontSize: '0.85rem'
-          }}
-        >
-          Reset School Database
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="btn btn-primary"
+            style={{
+              padding: '0.5rem 1rem',
+              fontSize: '0.85rem',
+              margin: 0
+            }}
+          >
+            Student View
+          </button>
+          
+          <button 
+            onClick={handleResetData}
+            className="btn btn-secondary"
+            style={{
+              borderColor: 'rgba(239, 68, 68, 0.25)',
+              color: 'var(--color-error)',
+              padding: '0.5rem 1rem',
+              fontSize: '0.85rem',
+              margin: 0
+            }}
+          >
+            Reset Database
+          </button>
+        </div>
       </div>
 
       {/* School Scheduling Stats */}

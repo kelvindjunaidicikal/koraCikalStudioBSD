@@ -63,18 +63,14 @@ export default function StudentCalendarDashboard() {
         return;
       }
 
-      if (sessionUser.role === 'admin') {
-        router.replace('/admin');
-      } else {
-        setUser(sessionUser);
-        const fetchedBookings = await getBookings();
-        setBookings(fetchedBookings);
-        
-        const loadedStudios = getStudios();
-        setStudios(loadedStudios);
-        if (loadedStudios.length > 0) {
-          setSelectedStudioId(loadedStudios[0].id);
-        }
+      setUser(sessionUser);
+      const fetchedBookings = await getBookings();
+      setBookings(fetchedBookings);
+      
+      const loadedStudios = getStudios();
+      setStudios(loadedStudios);
+      if (loadedStudios.length > 0) {
+        setSelectedStudioId(loadedStudios[0].id);
       }
     }
 
@@ -188,6 +184,42 @@ export default function StudentCalendarDashboard() {
   return (
     <div className="animate-fade-in" style={{ padding: '2rem 1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
       
+      {/* Teacher View Banner */}
+      {user.role === 'admin' && (
+        <div style={{
+          background: 'rgba(59, 130, 246, 0.15)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          color: 'var(--neon-blue)',
+          padding: '0.75rem 1.25rem',
+          borderRadius: 'var(--radius-md)',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.85rem',
+          fontWeight: 500,
+          gap: '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>👀</span> You are viewing this calendar in <strong>Student View</strong> (Teacher mode active).
+          </span>
+          <button 
+            onClick={() => router.push('/admin')} 
+            className="btn btn-primary"
+            style={{ 
+              padding: '0.35rem 0.75rem', 
+              fontSize: '0.75rem', 
+              margin: 0,
+              backgroundColor: 'var(--neon-blue)',
+              borderColor: 'var(--neon-blue)'
+            }}
+          >
+            Back to Teacher Admin Control
+          </button>
+        </div>
+      )}
+
       {/* Welcome Title */}
       <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
