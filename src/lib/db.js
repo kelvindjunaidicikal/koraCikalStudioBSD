@@ -107,7 +107,19 @@ export async function getBookings() {
       console.error('Error fetching bookings from Supabase:', error);
       return [];
     }
-    return data || [];
+    // Map snake_case columns back to camelCase for the frontend UI logic
+    return (data || []).map(b => ({
+      id: b.id,
+      userEmail: b.user_email,
+      studioId: b.studio_id,
+      studioName: b.studio_name,
+      date: b.date,
+      time: b.time,
+      studentName: b.student_name,
+      gradeLevel: b.grade_level,
+      purpose: b.purpose,
+      status: b.status
+    }));
   }
 
   // Fallback to local storage
@@ -141,16 +153,43 @@ export async function addBooking(bookingData) {
   };
 
   if (supabase) {
+    // Map camelCase fields to snake_case database columns to match Supabase SQL table structure
+    const dbRecord = {
+      id: newBooking.id,
+      user_email: newBooking.userEmail,
+      studio_id: newBooking.studioId,
+      studio_name: newBooking.studioName,
+      date: newBooking.date,
+      time: newBooking.time,
+      student_name: newBooking.studentName,
+      grade_level: newBooking.gradeLevel,
+      purpose: newBooking.purpose,
+      status: newBooking.status
+    };
+
     const { data, error } = await supabase
       .from('bookings')
-      .insert([newBooking])
+      .insert([dbRecord])
       .select();
       
     if (error) {
       console.error('Error adding booking to Supabase:', error);
       throw error;
     }
-    return data?.[0] || newBooking;
+
+    const inserted = data?.[0];
+    return inserted ? {
+      id: inserted.id,
+      userEmail: inserted.user_email,
+      studioId: inserted.studio_id,
+      studioName: inserted.studio_name,
+      date: inserted.date,
+      time: inserted.time,
+      studentName: inserted.student_name,
+      gradeLevel: inserted.grade_level,
+      purpose: inserted.purpose,
+      status: inserted.status
+    } : newBooking;
   }
 
   // Fallback to local storage
