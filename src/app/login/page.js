@@ -199,20 +199,13 @@ export default function Login() {
               Welcome to
             </span>
             <h1 className="gradient-text" style={{
-              fontSize: '2.25rem',
-              marginTop: '0.25rem',
-              fontWeight: 800
-            }}>
-              KORA
-            </h1>
-            <p style={{
-              color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
+              fontSize: '1.8rem',
               marginTop: '0.5rem',
-              lineHeight: '1.4'
+              fontWeight: 800,
+              lineHeight: '1.25'
             }}>
-              Kelvin Orchestrated Reservation Application
-            </p>
+              Cikal Campus B Studio Reservation
+            </h1>
           </div>
 
           {/* Form */}
@@ -287,6 +280,34 @@ export default function Login() {
               </svg>
               {loading ? 'Redirecting to Google...' : 'Sign In with Google'}
             </button>
+
+            {/* KORA Branding Footer below the button */}
+            <div style={{
+              width: '100%',
+              textAlign: 'center',
+              marginTop: '2rem',
+              borderTop: '1px solid var(--border-subtle)',
+              paddingTop: '1.25rem',
+            }}>
+              <span style={{
+                fontFamily: 'var(--font-outfit)',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                letterSpacing: '0.05em',
+                display: 'block'
+              }}>
+                KORA
+              </span>
+              <span style={{
+                fontSize: '0.65rem',
+                color: 'var(--text-muted)',
+                display: 'block',
+                marginTop: '0.15rem'
+              }}>
+                Kelvin Orchestrated Reservation Application
+              </span>
+            </div>
           </div>
         </div>
       </div>
