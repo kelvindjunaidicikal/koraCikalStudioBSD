@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-outfit: 'Outfit', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  /* Colors - Sleek School Theme */
+  --bg-deep: #07080e; /* Deep dark obsidian */
+  --bg-surface: #121526; /* Dark slate blue */
+  --bg-card: rgba(18, 21, 38, 0.75);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: #3b82f6;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+
+  /* Reddish Neon Background & Blue Accent Colors */
+  --neon-red: #ff3366; /* Vibrant reddish neon */
+  --neon-red-glow: rgba(255, 51, 102, 0.35);
+  --neon-blue: #3b82f6; /* Blue ornament */
+  --neon-blue-glow: rgba(59, 130, 246, 0.35);
+  --neon-pink: #ec4899;
+  
+  --color-success: #10b981;
+  --color-error: #ff3366;
+
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 4px;
+
+  /* Gradients */
+  --grad-primary: linear-gradient(135deg, #ff3366 0%, #3b82f6 100%);
+  --grad-pink: linear-gradient(135deg, #ff2a5f 0%, #3b82f6 100%);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-deep);
+  /* Reddish neon & Blue radial ornament glow */
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, rgba(0, 0, 0, 0) 35%), 
+    radial-gradient(circle at 90% 80%, rgba(255, 51, 102, 0.1) 0%, rgba(0, 0, 0, 0) 35%),
+    linear-gradient(180deg, #0a0b12 0%, #030407 100%);
+  color: var(--text-primary);
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-outfit);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn {
+  font-family: var(--font-outfit);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--neon-blue);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-danger {
+  background: var(--color-error);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.input-field {
+  background: #0f172a;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.7rem 0.9rem;
+  color: var(--text-primary);
+  font-family: var(--font-inter);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--neon-blue);
+}
+
+/* Room tabs styling */
+.room-tabs {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.room-tab {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-outfit);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.room-tab:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+}
+
+.room-tab.active {
+  background: var(--active-bg, var(--neon-red));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 15px var(--active-glow, var(--neon-red-glow));
+}
+
+/* Week Navigator style */
+.week-navigator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  background: rgba(255,255,255,0.02);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Calendar Grid Container */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(5, 1fr); /* 1 column for hours, 5 columns for school days */
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: #0f172a;
+}
+
+/* Column headers (Mon - Fri) */
+.calendar-header {
+  background: #1e293b;
+  padding: 1rem 0.5rem;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  font-family: var(--font-outfit);
+  font-size: 0.95rem;
+}
+
+.calendar-header:last-child {
+  border-right: none;
+}
+
+.calendar-header-time {
+  background: #1e293b;
+  border-bottom: 2px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Hour rows labels */
+.calendar-time-label {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cell items */
+.calendar-cell {
+  min-height: 80px;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.calendar-cell:nth-child(6n) {
+  border-right: none;
+}
+
+/* Available state cell */
+.calendar-cell.available {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.calendar-cell.available:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.calendar-cell.available .cell-btn {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--neon-blue);
+  color: white;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-weight: 600;
+}
+
+.calendar-cell.available:hover .cell-btn {
+  opacity: 1;
+}
+
+/* Booked state cell */
+.calendar-cell.booked {
+  background: var(--room-color-bg, rgba(255, 51, 102, 0.15));
+  border-left: 3px solid var(--room-color, var(--neon-red));
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.calendar-cell.booked .booked-student {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.calendar-cell.booked .booked-grade {
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-cell.booked .booked-purpose {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  font-style: italic;
+}
+
+/* Modal styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card {
+  width: 90%;
+  max-width: 450px;
+  padding: 2rem;
+  position: relative;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Navbar adaptations for school style */
+.badge-school {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--neon-blue);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Responsiveness adjustments for tables/grids */
+@media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: 60px repeat(5, 120px);
+    overflow-x: auto;
+  }
+}
