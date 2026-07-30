@@ -401,3 +401,21 @@ h1, h2, h3, h4, h5, h6 {
     rgba(255, 255, 255, 0.03) 16px
   ) !important;
 }
+
+/* Locked booking window cell (too early / too late) */
+.calendar-cell.locked-window {
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  border-left: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.calendar-cell.locked-window:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.calendar-cell.locked-window .cell-btn {
+  opacity: 0.45;
+  border-color: transparent;
+  color: var(--text-muted);
+}

@@ -84,9 +84,14 @@ export default function StudentCalendarDashboard() {
     return null; // Wait for initial loading
   }
 
+  const getTodayDate = () => {
+    const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+    return hasSupabase ? new Date() : new Date('2026-07-29');
+  };
+
   // Calculate Monday to Friday dates dynamically based on weekOffset
   const getWeekDays = (offset) => {
-    const today = new Date('2026-07-29'); // Use fixed local reference date
+    const today = getTodayDate();
     // Calculate new date based on offset weeks
     const targetDay = new Date(today.getTime() + offset * 7 * 24 * 60 * 60 * 1000);
     const day = targetDay.getDay();
@@ -282,13 +287,36 @@ export default function StudentCalendarDashboard() {
                       </div>
                     );
                   } else {
+                    const today = getTodayDate();
+                    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    const target = new Date(day.dateString);
+                    const targetStart = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+                    
+                    const diffTime = targetStart - todayStart;
+                    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    const isLocked = diffDays > 7 || diffDays < 1;
+
+                    const handleCellClick = () => {
+                      if (diffDays > 7) {
+                        const openDate = new Date(targetStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+                        alert(`Booking opens 7 days in advance. You can reserve this slot starting on ${openDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}.`);
+                        return;
+                      }
+                      if (diffDays < 1) {
+                        alert(`Booking closes 1 day before the rehearsal date. It is too late to reserve this slot.`);
+                        return;
+                      }
+                      handleOpenBookingModal(day.dateString, hour);
+                    };
+
                     return (
                       <div 
                         key={`${day.dateString}_${hour}`} 
-                        className="calendar-cell available"
-                        onClick={() => handleOpenBookingModal(day.dateString, hour)}
+                        className={`calendar-cell ${isLocked ? 'locked-window' : 'available'}`}
+                        onClick={handleCellClick}
                       >
-                        <button className="cell-btn">+ Book</button>
+                        <button className="cell-btn">{isLocked ? '🔒 Locked' : '+ Book'}</button>
                       </div>
                     );
                   }

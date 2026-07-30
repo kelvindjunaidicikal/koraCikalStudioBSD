@@ -99,9 +99,14 @@ export default function TeacherAdminDashboard() {
     return null; // Wait for initial loading
   }
 
+  const getTodayDate = () => {
+    const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+    return hasSupabase ? new Date() : new Date('2026-07-29');
+  };
+
   // Calculate Monday to Friday dates dynamically based on weekOffset
   const getWeekDays = (offset) => {
-    const today = new Date('2026-07-29'); // Use fixed local reference date
+    const today = getTodayDate();
     const targetDay = new Date(today.getTime() + offset * 7 * 24 * 60 * 60 * 1000);
     const day = targetDay.getDay();
     const diff = targetDay.getDate() - day + (day === 0 ? -6 : 1);
