@@ -67,7 +67,8 @@ export default function StudentCalendarDashboard() {
         router.replace('/admin');
       } else {
         setUser(sessionUser);
-        setBookings(getBookings());
+        const fetchedBookings = await getBookings();
+        setBookings(fetchedBookings);
         
         const loadedStudios = getStudios();
         setStudios(loadedStudios);
@@ -132,7 +133,7 @@ export default function StudentCalendarDashboard() {
     setIsModalOpen(true);
   };
 
-  const handleCreateBooking = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -156,17 +157,28 @@ export default function StudentCalendarDashboard() {
       purpose: purpose.trim()
     };
 
-    addBooking(newBooking);
-    setBookings(getBookings());
-    setIsModalOpen(false);
-    alert('Booking request sent! Awaiting teacher approval.');
+    try {
+      await addBooking(newBooking);
+      const updated = await getBookings();
+      setBookings(updated);
+      setIsModalOpen(false);
+      alert('Booking request sent! Awaiting teacher approval.');
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Failed to request booking. Please try again.');
+    }
   };
 
-  const handleCancelMyBooking = (id) => {
+  const handleCancelMyBooking = async (id) => {
     const confirmCancel = window.confirm('Are you sure you want to cancel this rehearsal booking?');
     if (confirmCancel) {
-      const updated = deleteBooking(id);
-      setBookings(updated);
+      try {
+        const updated = await deleteBooking(id);
+        setBookings(updated);
+      } catch (err) {
+        console.error(err);
+        alert('Failed to cancel booking. Please try again.');
+      }
     }
   };
 

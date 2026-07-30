@@ -1,4 +1,15 @@
 // Mock database helper using localStorage for school studio booking calendar
+import { getSupabaseBrowserClient } from './supabase-client';
+
+const getSupabase = () => {
+  if (typeof window === 'undefined') return null;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (url && anon) {
+    return getSupabaseBrowserClient();
+  }
+  return null;
+};
 
 export const DEFAULT_STUDIOS = [
   {
@@ -83,7 +94,23 @@ const DEFAULT_BOOKINGS = [
 
 const isBrowser = () => typeof window !== 'undefined';
 
-export function getBookings() {
+export async function getBookings() {
+  const supabase = getSupabase();
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .order('date', { ascending: true })
+      .order('time', { ascending: true });
+      
+    if (error) {
+      console.error('Error fetching bookings from Supabase:', error);
+      return [];
+    }
+    return data || [];
+  }
+
+  // Fallback to local storage
   if (!isBrowser()) return DEFAULT_BOOKINGS;
   
   const bookings = localStorage.getItem('school_bookings');
@@ -99,20 +126,51 @@ export function saveBookings(bookings) {
   localStorage.setItem('school_bookings', JSON.stringify(bookings));
 }
 
-export function addBooking(bookingData) {
-  const bookings = getBookings();
+export async function addBooking(bookingData) {
+  const supabase = getSupabase();
   const newBooking = {
     id: `bk-${Math.floor(1000 + Math.random() * 9000)}`,
     status: bookingData.status || 'Requested', // Default to requested for student workflow
     ...bookingData
   };
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert([newBooking])
+      .select();
+      
+    if (error) {
+      console.error('Error adding booking to Supabase:', error);
+      throw error;
+    }
+    return data?.[0] || newBooking;
+  }
+
+  // Fallback to local storage
+  const bookings = await getBookings();
   bookings.push(newBooking);
   saveBookings(bookings);
   return newBooking;
 }
 
-export function approveBooking(id) {
-  const bookings = getBookings();
+export async function approveBooking(id) {
+  const supabase = getSupabase();
+  if (supabase) {
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: 'Confirmed' })
+      .eq('id', id);
+      
+    if (error) {
+      console.error('Error approving booking in Supabase:', error);
+      throw error;
+    }
+    return getBookings();
+  }
+
+  // Fallback to local storage
+  const bookings = await getBookings();
   const updated = bookings.map(b => {
     if (b.id === id) {
       return { ...b, status: 'Confirmed' };
@@ -123,8 +181,23 @@ export function approveBooking(id) {
   return updated;
 }
 
-export function deleteBooking(id) {
-  const bookings = getBookings();
+export async function deleteBooking(id) {
+  const supabase = getSupabase();
+  if (supabase) {
+    const { error } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('id', id);
+      
+    if (error) {
+      console.error('Error deleting booking from Supabase:', error);
+      throw error;
+    }
+    return getBookings();
+  }
+
+  // Fallback to local storage
+  const bookings = await getBookings();
   const filtered = bookings.filter(b => b.id !== id);
   saveBookings(filtered);
   return filtered;
@@ -226,19 +299,33 @@ export function resetDatabase() {
   localStorage.setItem('school_accounts', JSON.stringify(DEFAULT_ACCOUNTS));
 }
 
-export function getStats() {
-  const bookings = getBookings();
+export async function getStats() {
+  const bookings = await getBookings();
   const studios = getStudios();
   
+  const totalBookings = bookings.length;
+  const totalConfirmed = bookings.filter(b => b.status === 'Confirmed').length;
+  const totalPending = bookings.filter(b => b.status === 'Requested').length;
+  
+  // Find popular room
+  const roomCounts = bookings.reduce((acc, curr) => {
+    acc[curr.studioName] = (acc[curr.studioName] || 0) + 1;
+    return acc;
+  }, {});
+  
+  let popularRoom = 'None';
+  let maxCount = 0;
+  Object.entries(roomCounts).forEach(([room, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      popularRoom = room.split(' - ')[0];
+    }
+  });
+  
   return {
-    totalBookings: bookings.length,
-    roomCount: studios.length,
-    activeThisWeek: bookings.filter(b => {
-      const bDate = new Date(b.date);
-      const today = new Date('2026-07-29'); // Local test time reference
-      const diffTime = Math.abs(today - bDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays <= 7;
-    }).length
+    totalBookings,
+    totalConfirmed,
+    totalPending,
+    popularRoom
   };
 }

@@ -82,17 +82,23 @@ export default function TeacherAdminDashboard() {
         router.replace('/dashboard');
       } else {
         setUser(sessionUser);
-        loadAllData();
+        await loadAllData();
       }
     }
 
     initSession();
   }, [router]);
 
-  const loadAllData = () => {
-    setBookings(getBookings());
-    setStudios(getStudios());
-    setStats(getStats());
+  const loadAllData = async () => {
+    try {
+      const bData = await getBookings();
+      setBookings(bData);
+      setStudios(getStudios());
+      const sData = await getStats();
+      setStats(sData);
+    } catch (err) {
+      console.error("Error loading admin dashboard stats:", err);
+    }
   };
 
   if (!user || studios.length === 0) {
@@ -134,14 +140,19 @@ export default function TeacherAdminDashboard() {
     );
   };
 
-  const handleApproveBookingClick = (id, studentName) => {
-    approveBooking(id);
-    loadAllData();
-    alert(`Booking for ${studentName} approved!`);
+  const handleApproveBookingClick = async (id, studentName) => {
+    try {
+      await approveBooking(id);
+      await loadAllData();
+      alert(`Booking for ${studentName} approved!`);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to approve booking. Please try again.');
+    }
   };
 
   // Delete booking slot from calendar view directly (handles approvals and deletions)
-  const handleDeleteBookingClick = (id, studentName, timeSlot, date) => {
+  const handleDeleteBookingClick = async (id, studentName, timeSlot, date) => {
     const bk = bookings.find(b => b.id === id);
     if (!bk) return;
 
@@ -151,22 +162,32 @@ export default function TeacherAdminDashboard() {
       );
       if (action === null) return;
       
-      if (action.toUpperCase() === 'A') {
-        approveBooking(id);
-        loadAllData();
-        alert(`Booking for ${studentName} approved!`);
-      } else if (action.toUpperCase() === 'D') {
-        deleteBooking(id);
-        loadAllData();
-        alert(`Booking request declined.`);
-      } else {
-        alert(`Invalid selection. No changes made.`);
+      try {
+        if (action.toUpperCase() === 'A') {
+          await approveBooking(id);
+          await loadAllData();
+          alert(`Booking for ${studentName} approved!`);
+        } else if (action.toUpperCase() === 'D') {
+          await deleteBooking(id);
+          await loadAllData();
+          alert(`Booking request declined.`);
+        } else {
+          alert(`Invalid selection. No changes made.`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Action failed. Please try again.');
       }
     } else {
       const confirmCancel = window.confirm(`Remove confirmed booking for ${studentName} on ${date} at ${timeSlot}?`);
       if (confirmCancel) {
-        deleteBooking(id);
-        loadAllData();
+        try {
+          await deleteBooking(id);
+          await loadAllData();
+        } catch (err) {
+          console.error(err);
+          alert('Delete failed. Please try again.');
+        }
       }
     }
   };
@@ -181,7 +202,7 @@ export default function TeacherAdminDashboard() {
     setIsModalOpen(true);
   };
 
-  const handleCreateBooking = (e) => {
+  const handleCreateBooking = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -206,9 +227,14 @@ export default function TeacherAdminDashboard() {
       status: 'Confirmed'
     };
 
-    addBooking(newBooking);
-    loadAllData();
-    setIsModalOpen(false);
+    try {
+      await addBooking(newBooking);
+      await loadAllData();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Failed to create booking. Please try again.');
+    }
   };
 
   const handleRegisterStudent = async (e) => {
@@ -264,11 +290,11 @@ export default function TeacherAdminDashboard() {
     }
   };
 
-  const handleResetData = () => {
+  const handleResetData = async () => {
     const confirmReset = window.confirm('Reset the database back to default school practice rooms and sample schedules?');
     if (confirmReset) {
       resetDatabase();
-      loadAllData();
+      await loadAllData();
       alert('School schedule database reset.');
     }
   };
