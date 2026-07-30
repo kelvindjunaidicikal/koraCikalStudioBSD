@@ -445,7 +445,7 @@ export default function StudentCalendarDashboard() {
               Confirm booking for <strong>{currentStudio.name.split(' - ')[0]}</strong> on <strong>{modalDate}</strong> at <strong>{modalTime}</strong>.
             </p>
 
-            <form onSubmit={handleCreateBooking}>
+            <form onSubmit={handleBookingSubmit}>
               {errorMsg && (
                 <div style={{
                   background: 'rgba(239, 68, 68, 0.1)',
