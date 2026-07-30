@@ -113,12 +113,18 @@ export async function getBookings() {
   // Fallback to local storage
   if (!isBrowser()) return DEFAULT_BOOKINGS;
   
-  const bookings = localStorage.getItem('school_bookings');
-  if (!bookings) {
+  try {
+    const bookings = localStorage.getItem('school_bookings');
+    if (!bookings) {
+      localStorage.setItem('school_bookings', JSON.stringify(DEFAULT_BOOKINGS));
+      return DEFAULT_BOOKINGS;
+    }
+    return JSON.parse(bookings);
+  } catch (e) {
+    console.error("Local storage bookings parse error, resetting...", e);
     localStorage.setItem('school_bookings', JSON.stringify(DEFAULT_BOOKINGS));
     return DEFAULT_BOOKINGS;
   }
-  return JSON.parse(bookings);
 }
 
 export function saveBookings(bookings) {
@@ -205,8 +211,13 @@ export async function deleteBooking(id) {
 
 export function getCurrentUser() {
   if (!isBrowser()) return null;
-  const user = localStorage.getItem('school_user');
-  return user ? JSON.parse(user) : null;
+  try {
+    const user = localStorage.getItem('school_user');
+    return user ? JSON.parse(user) : null;
+  } catch (e) {
+    console.error("Local storage user parse error:", e);
+    return null;
+  }
 }
 
 export function setCurrentUser(email, role) {
@@ -222,12 +233,18 @@ export function logoutUser() {
 export function getStudios() {
   if (!isBrowser()) return DEFAULT_STUDIOS;
   
-  const studios = localStorage.getItem('school_studios');
-  if (!studios) {
+  try {
+    const studios = localStorage.getItem('school_studios');
+    if (!studios) {
+      localStorage.setItem('school_studios', JSON.stringify(DEFAULT_STUDIOS));
+      return DEFAULT_STUDIOS;
+    }
+    return JSON.parse(studios);
+  } catch (e) {
+    console.error("Local storage studios parse error, resetting...", e);
     localStorage.setItem('school_studios', JSON.stringify(DEFAULT_STUDIOS));
     return DEFAULT_STUDIOS;
   }
-  return JSON.parse(studios);
 }
 
 export function saveStudios(studios) {
@@ -255,12 +272,18 @@ export const DEFAULT_ACCOUNTS = [
 export function getAccounts() {
   if (!isBrowser()) return DEFAULT_ACCOUNTS;
   
-  const accounts = localStorage.getItem('school_accounts');
-  if (!accounts) {
+  try {
+    const accounts = localStorage.getItem('school_accounts');
+    if (!accounts) {
+      localStorage.setItem('school_accounts', JSON.stringify(DEFAULT_ACCOUNTS));
+      return DEFAULT_ACCOUNTS;
+    }
+    return JSON.parse(accounts);
+  } catch (e) {
+    console.error("Local storage accounts parse error, resetting...", e);
     localStorage.setItem('school_accounts', JSON.stringify(DEFAULT_ACCOUNTS));
     return DEFAULT_ACCOUNTS;
   }
-  return JSON.parse(accounts);
 }
 
 export function saveAccounts(accounts) {

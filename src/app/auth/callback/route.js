@@ -7,6 +7,11 @@ export async function GET(request) {
 
   if (code) {
     const supabase = await getSupabaseServerClient();
+    if (!supabase) {
+      return NextResponse.redirect(
+        `${requestUrl.origin}/login?error=${encodeURIComponent('Supabase server connection client is not configured.')}`
+      );
+    }
     
     // Exchange callback code for a secure cookie session
     const { data: sessionData, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
