@@ -154,6 +154,7 @@ export default function StudentCalendarDashboard() {
     addBooking(newBooking);
     setBookings(getBookings());
     setIsModalOpen(false);
+    alert('Booking request sent! Awaiting teacher approval.');
   };
 
   const handleCancelMyBooking = (id) => {
@@ -251,13 +252,31 @@ export default function StudentCalendarDashboard() {
                     return (
                       <div 
                         key={`${day.dateString}_${hour}`} 
-                        className="calendar-cell booked"
+                        className={`calendar-cell booked ${bk.status === 'Requested' ? 'requested' : ''}`}
                         style={{
                           '--room-color': currentStudio.color,
                           '--room-color-bg': `${currentStudio.color}15`
                         }}
                       >
-                        <span className="booked-student" title={bk.studentName}>{bk.studentName}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '0.2rem', gap: '0.25rem' }}>
+                          <span className="booked-student" title={bk.studentName} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
+                            {bk.studentName}
+                          </span>
+                          {bk.status === 'Requested' && (
+                            <span style={{ 
+                              fontSize: '0.55rem', 
+                              padding: '0.05rem 0.25rem', 
+                              borderRadius: '3px', 
+                              background: 'rgba(245, 158, 11, 0.12)', 
+                              color: '#f59e0b', 
+                              border: '1px solid rgba(245, 158, 11, 0.25)', 
+                              fontWeight: 'bold',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              Pending
+                            </span>
+                          )}
+                        </div>
                         <span className="booked-grade">{bk.gradeLevel}</span>
                         <span className="booked-purpose" title={bk.purpose}>{bk.purpose}</span>
                       </div>
@@ -304,6 +323,7 @@ export default function StudentCalendarDashboard() {
                   <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>TIME SLOT</th>
                   <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>STUDENT NAME</th>
                   <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>PURPOSE</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>STATUS</th>
                   <th style={{ padding: '0.75rem 1rem', fontWeight: 600, textAlign: 'right' }}>ACTION</th>
                 </tr>
               </thead>
@@ -315,6 +335,11 @@ export default function StudentCalendarDashboard() {
                     <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: 'var(--neon-blue)' }}>{bk.time}</td>
                     <td style={{ padding: '0.85rem 1rem' }}>{bk.studentName} <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>({bk.gradeLevel})</span></td>
                     <td style={{ padding: '0.85rem 1rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}>{bk.purpose}</td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <span className={`badge ${bk.status === 'Requested' ? 'badge-pending' : 'badge-confirmed'}`} style={{ fontSize: '0.7rem' }}>
+                        {bk.status || 'Requested'}
+                      </span>
+                    </td>
                     <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
                       <button 
                         onClick={() => handleCancelMyBooking(bk.id)}

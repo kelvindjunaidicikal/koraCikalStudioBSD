@@ -376,3 +376,28 @@ h1, h2, h3, h4, h5, h6 {
     overflow-x: auto;
   }
 }
+
+/* Status badges for bookings list */
+.badge-pending {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #f59e0b !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+.badge-confirmed {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Booked state cell - Requested / Pending Approval */
+.calendar-cell.booked.requested {
+  border-left: 3px dashed var(--room-color, var(--neon-red)) !important;
+  opacity: 0.75;
+  background-image: repeating-linear-gradient(45deg, 
+    rgba(255, 255, 255, 0.01), 
+    rgba(255, 255, 255, 0.01) 8px, 
+    rgba(255, 255, 255, 0.03) 8px, 
+    rgba(255, 255, 255, 0.03) 16px
+  ) !important;
+}

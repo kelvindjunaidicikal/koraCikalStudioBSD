@@ -29,7 +29,7 @@ const DEFAULT_BOOKINGS = [
     studentName: 'Sarah Jenkins',
     gradeLevel: 'Grade 11',
     purpose: 'Drum Practice',
-    status: 'Confirmed'
+    status: 'Requested'
   },
   {
     id: 'bk-2',
@@ -53,7 +53,7 @@ const DEFAULT_BOOKINGS = [
     studentName: 'Michael Chen',
     gradeLevel: 'Grade 9',
     purpose: 'Piano Assessment prep',
-    status: 'Confirmed'
+    status: 'Requested'
   },
   {
     id: 'bk-4',
@@ -77,7 +77,7 @@ const DEFAULT_BOOKINGS = [
     studentName: 'Emily & Chloe',
     gradeLevel: 'Grade 12',
     purpose: 'Duet practice',
-    status: 'Confirmed'
+    status: 'Requested'
   }
 ];
 
@@ -103,12 +103,24 @@ export function addBooking(bookingData) {
   const bookings = getBookings();
   const newBooking = {
     id: `bk-${Math.floor(1000 + Math.random() * 9000)}`,
-    status: 'Confirmed', // School bookings are confirmed by default
+    status: bookingData.status || 'Requested', // Default to requested for student workflow
     ...bookingData
   };
   bookings.push(newBooking);
   saveBookings(bookings);
   return newBooking;
+}
+
+export function approveBooking(id) {
+  const bookings = getBookings();
+  const updated = bookings.map(b => {
+    if (b.id === id) {
+      return { ...b, status: 'Confirmed' };
+    }
+    return b;
+  });
+  saveBookings(updated);
+  return updated;
 }
 
 export function deleteBooking(id) {

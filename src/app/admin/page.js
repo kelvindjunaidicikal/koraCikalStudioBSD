@@ -7,6 +7,7 @@ import {
   getBookings, 
   addBooking, 
   deleteBooking, 
+  approveBooking,
   getStats, 
   resetDatabase, 
   getCurrentUser 
@@ -128,12 +129,40 @@ export default function TeacherAdminDashboard() {
     );
   };
 
-  // Delete booking slot from calendar view directly
+  const handleApproveBookingClick = (id, studentName) => {
+    approveBooking(id);
+    loadAllData();
+    alert(`Booking for ${studentName} approved!`);
+  };
+
+  // Delete booking slot from calendar view directly (handles approvals and deletions)
   const handleDeleteBookingClick = (id, studentName, timeSlot, date) => {
-    const confirmCancel = window.confirm(`Remove booking for ${studentName} on ${date} at ${timeSlot}?`);
-    if (confirmCancel) {
-      deleteBooking(id);
-      loadAllData();
+    const bk = bookings.find(b => b.id === id);
+    if (!bk) return;
+
+    if (bk.status === 'Requested') {
+      const action = window.prompt(
+        `Review Request for ${studentName} on ${date} at ${timeSlot}:\n\nType 'A' to APPROVE this request\nType 'D' to DECLINE & DELETE it\n\nOr click Cancel to exit:`
+      );
+      if (action === null) return;
+      
+      if (action.toUpperCase() === 'A') {
+        approveBooking(id);
+        loadAllData();
+        alert(`Booking for ${studentName} approved!`);
+      } else if (action.toUpperCase() === 'D') {
+        deleteBooking(id);
+        loadAllData();
+        alert(`Booking request declined.`);
+      } else {
+        alert(`Invalid selection. No changes made.`);
+      }
+    } else {
+      const confirmCancel = window.confirm(`Remove confirmed booking for ${studentName} on ${date} at ${timeSlot}?`);
+      if (confirmCancel) {
+        deleteBooking(id);
+        loadAllData();
+      }
     }
   };
 
@@ -168,7 +197,8 @@ export default function TeacherAdminDashboard() {
       time: modalTime,
       studentName: studentName.trim(),
       gradeLevel: gradeLevel,
-      purpose: purpose.trim()
+      purpose: purpose.trim(),
+      status: 'Confirmed'
     };
 
     addBooking(newBooking);
@@ -373,14 +403,14 @@ export default function TeacherAdminDashboard() {
                     return (
                       <div 
                         key={`${day.dateString}_${hour}`} 
-                        className="calendar-cell booked"
+                        className={`calendar-cell booked ${bk.status === 'Requested' ? 'requested' : ''}`}
                         style={{
                           '--room-color': currentStudio.color,
                           '--room-color-bg': `${currentStudio.color}15`,
                           cursor: 'pointer'
                         }}
                         onClick={() => handleDeleteBookingClick(bk.id, bk.studentName, hour, day.dateString)}
-                        title="Click to remove student slot"
+                        title="Click to approve or remove slot"
                       >
                         {/* Hovering helper cross */}
                         <div style={{
@@ -401,7 +431,25 @@ export default function TeacherAdminDashboard() {
                           ✕
                         </div>
 
-                        <span className="booked-student" style={{ paddingRight: '12px' }} title={bk.studentName}>{bk.studentName}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', marginBottom: '0.2rem', paddingRight: '14px' }}>
+                          <span className="booked-student" title={bk.studentName} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>
+                            {bk.studentName}
+                          </span>
+                          {bk.status === 'Requested' && (
+                            <span style={{ 
+                              fontSize: '0.55rem', 
+                              padding: '0.05rem 0.25rem', 
+                              borderRadius: '3px', 
+                              background: 'rgba(245, 158, 11, 0.12)', 
+                              color: '#f59e0b', 
+                              border: '1px solid rgba(245, 158, 11, 0.25)', 
+                              fontWeight: 'bold',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              Pending
+                            </span>
+                          )}
+                        </div>
                         <span className="booked-grade">{bk.gradeLevel}</span>
                         <span className="booked-purpose" title={bk.purpose}>{bk.purpose}</span>
                       </div>
@@ -457,7 +505,8 @@ export default function TeacherAdminDashboard() {
                   <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>TIME SLOT</th>
                   <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>STUDENT NAME</th>
                   <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>PURPOSE</th>
-                  <th style={{ padding: '0.75rem 1rem', fontWeight: 600, textAlign: 'right' }}>REMOVE</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>STATUS</th>
+                  <th style={{ padding: '0.75rem 1rem', fontWeight: 600, textAlign: 'right' }}>ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -468,19 +517,40 @@ export default function TeacherAdminDashboard() {
                     <td style={{ padding: '0.85rem 1rem', fontWeight: 600, color: 'var(--neon-red)' }}>{bk.time}</td>
                     <td style={{ padding: '0.85rem 1rem' }}>{bk.studentName} <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>({bk.gradeLevel})</span></td>
                     <td style={{ padding: '0.85rem 1rem', fontStyle: 'italic', color: 'var(--text-secondary)' }}>{bk.purpose}</td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <span className={`badge ${bk.status === 'Requested' ? 'badge-pending' : 'badge-confirmed'}`} style={{ fontSize: '0.7rem' }}>
+                        {bk.status || 'Requested'}
+                      </span>
+                    </td>
                     <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
-                      <button 
-                        onClick={() => handleDeleteBookingClick(bk.id, bk.studentName, bk.time, bk.date)}
-                        className="btn btn-secondary"
-                        style={{
-                          padding: '0.3rem 0.6rem',
-                          fontSize: '0.75rem',
-                          borderColor: 'rgba(239, 68, 68, 0.25)',
-                          color: 'var(--color-error)'
-                        }}
-                      >
-                        Delete
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                        {bk.status === 'Requested' && (
+                          <button 
+                            onClick={() => handleApproveBookingClick(bk.id, bk.studentName)}
+                            className="btn btn-primary"
+                            style={{
+                              padding: '0.3rem 0.6rem',
+                              fontSize: '0.75rem',
+                              backgroundColor: 'var(--color-success)',
+                              borderColor: 'var(--color-success)'
+                            }}
+                          >
+                            Approve
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => handleDeleteBookingClick(bk.id, bk.studentName, bk.time, bk.date)}
+                          className="btn btn-secondary"
+                          style={{
+                            padding: '0.3rem 0.6rem',
+                            fontSize: '0.75rem',
+                            borderColor: 'rgba(239, 68, 68, 0.25)',
+                            color: 'var(--color-error)'
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
