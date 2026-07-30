@@ -47,15 +47,45 @@ export default function TeacherAdminDashboard() {
   ];
 
   useEffect(() => {
-    const sessionUser = getCurrentUser();
-    if (!sessionUser) {
-      router.replace('/login');
-    } else if (sessionUser.role !== 'admin') {
-      router.replace('/dashboard');
-    } else {
-      setUser(sessionUser);
-      loadAllData();
+    async function initSession() {
+      const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+      let sessionUser = getCurrentUser();
+
+      if (hasSupabase) {
+        try {
+          const { getSupabaseBrowserClient } = await import('@/lib/supabase-client');
+          const supabase = getSupabaseBrowserClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session?.user) {
+            const email = session.user.email;
+            const isTeacher = email.toLowerCase().includes('admin') || 
+                              email.toLowerCase().includes('teacher') || 
+                              session.user.user_metadata?.role === 'admin';
+            
+            const syncedUser = { email, role: isTeacher ? 'admin' : 'user' };
+            localStorage.setItem('school_user', JSON.stringify(syncedUser));
+            sessionUser = syncedUser;
+          }
+        } catch (e) {
+          console.error("Supabase session sync error:", e);
+        }
+      }
+
+      if (!sessionUser) {
+        router.replace('/login');
+        return;
+      }
+
+      if (sessionUser.role !== 'admin') {
+        router.replace('/dashboard');
+      } else {
+        setUser(sessionUser);
+        loadAllData();
+      }
     }
+
+    initSession();
   }, [router]);
 
   const loadAllData = () => {

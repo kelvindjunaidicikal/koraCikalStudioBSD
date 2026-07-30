@@ -33,21 +33,51 @@ export default function StudentCalendarDashboard() {
   ];
 
   useEffect(() => {
-    const sessionUser = getCurrentUser();
-    if (!sessionUser) {
-      router.replace('/login');
-    } else if (sessionUser.role === 'admin') {
-      router.replace('/admin');
-    } else {
-      setUser(sessionUser);
-      setBookings(getBookings());
-      
-      const loadedStudios = getStudios();
-      setStudios(loadedStudios);
-      if (loadedStudios.length > 0) {
-        setSelectedStudioId(loadedStudios[0].id);
+    async function initSession() {
+      const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+      let sessionUser = getCurrentUser();
+
+      if (hasSupabase) {
+        try {
+          const { getSupabaseBrowserClient } = await import('@/lib/supabase-client');
+          const supabase = getSupabaseBrowserClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (session?.user) {
+            const email = session.user.email;
+            const isTeacher = email.toLowerCase().includes('admin') || 
+                              email.toLowerCase().includes('teacher') || 
+                              session.user.user_metadata?.role === 'admin';
+            
+            const syncedUser = { email, role: isTeacher ? 'admin' : 'user' };
+            localStorage.setItem('school_user', JSON.stringify(syncedUser));
+            sessionUser = syncedUser;
+          }
+        } catch (e) {
+          console.error("Supabase session sync error:", e);
+        }
+      }
+
+      if (!sessionUser) {
+        router.replace('/login');
+        return;
+      }
+
+      if (sessionUser.role === 'admin') {
+        router.replace('/admin');
+      } else {
+        setUser(sessionUser);
+        setBookings(getBookings());
+        
+        const loadedStudios = getStudios();
+        setStudios(loadedStudios);
+        if (loadedStudios.length > 0) {
+          setSelectedStudioId(loadedStudios[0].id);
+        }
       }
     }
+
+    initSession();
   }, [router]);
 
   if (!user || studios.length === 0) {

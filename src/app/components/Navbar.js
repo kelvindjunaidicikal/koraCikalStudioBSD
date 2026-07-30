@@ -15,8 +15,20 @@ export default function Navbar() {
   }, [pathname]);
 
   // Handle manual sign out
-  const handleLogout = () => {
+  const handleLogout = async () => {
     logoutUser();
+    
+    const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (hasSupabase) {
+      try {
+        const { getSupabaseBrowserClient } = await import('@/lib/supabase-client');
+        const supabase = getSupabaseBrowserClient();
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.error("Supabase logout error:", e);
+      }
+    }
+    
     setUser(null);
     router.push('/login');
   };

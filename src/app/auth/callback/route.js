@@ -6,7 +6,7 @@ export async function GET(request) {
   const code = requestUrl.searchParams.get('code');
 
   if (code) {
-    const supabase = getSupabaseServerClient();
+    const supabase = await getSupabaseServerClient();
     
     // Exchange callback code for a secure cookie session
     const { data: sessionData, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
